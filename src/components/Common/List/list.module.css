@@ -1,0 +1,15 @@
+.listItem {
+  cursor: pointer;
+  border-radius: 4px;
+  box-shadow: none;
+  transition: 0.15s ease-in;
+}
+
+.listItemActive {
+  color: var(--primary);
+}
+
+.listItem:hover {
+  box-shadow: var(--box-shadow-inset);
+  color: var(--info);
+}
