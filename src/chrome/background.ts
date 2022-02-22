@@ -59,12 +59,12 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         type: 'basic',
         iconUrl: './../../logo192.png',
       });
-    }, secondsToMilliseconds(10));
+    }, secondsToMilliseconds(closeTab.duration - 30));
 
     const expiredTimeOut = setTimeout(async () => {
       chrome.tabs.sendMessage(tabId, { message: 'expired' });
       await tabRemainTimeService.delete({ tabId, windowId: tab.windowId });
-    }, secondsToMilliseconds(20));
+    }, secondsToMilliseconds(closeTab.duration));
 
     await timeOutFnService.add({
       key: `beforeExpiredTimeOut-${tabId}-${tab.windowId}`,
