@@ -19,19 +19,9 @@ export default function HomePage() {
     });
   };
 
-  const updateCloseTab = (closeTab: CloseTab) => {
-    const closeTabService = Container.get(CloseTabService);
-    closeTabService.updateCloseTab(closeTab).then((result) => {
-      if (!result) {
-        alert('Error occurs while updating item');
-      }
-      getCloseTabs();
-    });
-  };
-
-  // const decreaseRemainTime = (name: string) => {
+  // const updateCloseTab = (closeTab: CloseTab) => {
   //   const closeTabService = Container.get(CloseTabService);
-  //   closeTabService.decreaseRemainTime(name).then((result) => {
+  //   closeTabService.updateCloseTab(closeTab).then((result) => {
   //     if (!result) {
   //       alert('Error occurs while updating item');
   //     }
@@ -68,8 +58,14 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="p-3 h-100 w-100">
-      <Fab fixed bottom right color="var(--primary)" onClick={() => setOpenCreateDialog(true)}>
+    <div className="p-3" style={{ height: 500, overflowY: 'scroll' }}>
+      <Fab
+        fixed
+        right
+        style={{ top: '430px', zIndex: 1030 }}
+        color="var(--primary)"
+        onClick={() => setOpenCreateDialog(true)}
+      >
         <span style={{ fontSize: '30px' }}>+</span>
       </Fab>
 

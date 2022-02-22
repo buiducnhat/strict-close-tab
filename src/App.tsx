@@ -6,7 +6,7 @@ export default function App() {
   return (
     <Switch>
       <Route path="/">
-        <HomePage/>
+        <HomePage />
       </Route>
     </Switch>
   );

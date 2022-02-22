@@ -11,7 +11,7 @@ import { FaEllipsisV as SettingIcon } from 'react-icons/fa';
 
 import { CloseTab } from 'src/models/close-tab.interface';
 import { formatDuration, secToDuration } from 'src/utils/commons';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { List, ListItem } from 'src/components/Common/List';
 
 interface CloseTabItemProps {
@@ -23,8 +23,8 @@ interface CloseTabItemProps {
 export default function CloseTabItem({
   item,
   deleteCloseTab,
-  // decreaseRemainTime,
-}: CloseTabItemProps) {
+}: // decreaseRemainTime,
+CloseTabItemProps) {
   const durationObj = secToDuration(item.duration);
 
   const [openSetting, setOpenSetting] = useState(false);

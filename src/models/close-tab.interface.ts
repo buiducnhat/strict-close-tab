@@ -7,8 +7,14 @@ export interface CloseTab {
 }
 
 export interface TabRemainTime {
-  tabId?: number;
-  name?: string;
-  startTime?: Date;
-  duration?: number;
+  tabId: number;
+  windowId: number;
+  name: string;
+  startTime: number;
+  duration: number;
+}
+
+export interface TimeOutFn {
+  key: string;
+  value: NodeJS.Timeout;
 }
