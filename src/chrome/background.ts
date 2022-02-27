@@ -60,7 +60,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         title: 'Before expired',
         message: '30s count down before your tab is blocked',
         type: 'basic',
-        iconUrl: './../../logo192.png',
+        iconUrl: './../../logo.png',
       });
       await timeOutFnService.delete(`beforeExpiredTimeOut-${tabId}-${tab.windowId}`);
     }, secondsToMilliseconds(closeTab.duration - 30));
