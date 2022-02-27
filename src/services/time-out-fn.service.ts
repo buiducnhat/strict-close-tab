@@ -32,6 +32,9 @@ export class TimeOutFnService {
 
   public async delete(key: string) {
     let timeOutFns = await this.getAll();
+    const timeOutFn = timeOutFns.find((_timeOutFn) => _timeOutFn.key === key);
+    timeOutFn && clearTimeout(timeOutFn?.value as NodeJS.Timeout);
+
     timeOutFns = timeOutFns.filter((timeOutFn) => !(timeOutFn.key === key));
     await this.save(timeOutFns);
   }

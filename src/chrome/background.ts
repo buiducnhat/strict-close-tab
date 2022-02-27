@@ -31,7 +31,6 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (tab.status !== 'complete') {
     return;
   }
-  console.log({ tab, changeInfo });
 
   const closeTabService = Container.get(CloseTabService);
   const tabRemainTimeService = Container.get(TabRemainTimeService);
@@ -39,11 +38,14 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
   const tabRemainTime = await tabRemainTimeService.getOne({ tabId, windowId: tab.windowId });
   const closeTab = await closeTabService.getCloseTabByUrl(tab.url as string);
-  console.log({ closeTab, tabRemainTime });
 
+  // Case has !! or ! (closeTab+tabRemainTime)
   if ((closeTab && tabRemainTime) || (!closeTab && !tabRemainTime)) {
     return;
-  } else if (closeTab && !tabRemainTime) {
+  }
+  // Case has closeTab defined but not tabRemainTime
+  // => need to create new tabRemainTime for process
+  if (closeTab && !tabRemainTime) {
     await tabRemainTimeService.add({
       name: closeTab.name,
       duration: closeTab.duration,
@@ -51,6 +53,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       tabId,
       windowId: tab.windowId,
     });
+    // Set timeout notify 30s before closing tab
     const beforeExpiredTimeOut = setTimeout(async () => {
       chrome.tabs.sendMessage(tabId, { message: 'before expired' });
       chrome.notifications.create({
@@ -59,11 +62,13 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
         type: 'basic',
         iconUrl: './../../logo192.png',
       });
+      await timeOutFnService.delete(`beforeExpiredTimeOut-${tabId}-${tab.windowId}`);
     }, secondsToMilliseconds(closeTab.duration - 30));
 
     const expiredTimeOut = setTimeout(async () => {
       chrome.tabs.sendMessage(tabId, { message: 'expired' });
       await tabRemainTimeService.delete({ tabId, windowId: tab.windowId });
+      await timeOutFnService.delete(`expiredTimeOut-${tabId}-${tab.windowId}`);
     }, secondsToMilliseconds(closeTab.duration));
 
     await timeOutFnService.add({
@@ -74,19 +79,11 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       key: `expiredTimeOut-${tabId}-${tab.windowId}`,
       value: expiredTimeOut,
     });
-  } else {
+  }
+  // Case !clostTab but tabRemainTime
+  // => The url of the tab was updated => delete timeOuts
+  else {
     await tabRemainTimeService.delete({ tabId, windowId: tab.windowId });
-
-    const beforeExpiredTimeOut = (
-      await timeOutFnService.getOne(`beforeExpiredTimeOut-${tabId}-${tab.windowId}`)
-    )?.value;
-    const expiredTimeOut = (
-      await timeOutFnService.getOne(`expiredTimeOut-${tabId}-${tab.windowId}`)
-    )?.value;
-    beforeExpiredTimeOut && clearTimeout(beforeExpiredTimeOut);
-    expiredTimeOut && clearTimeout(expiredTimeOut);
-
-    console.log({ beforeExpiredTimeOut, expiredTimeOut });
 
     await timeOutFnService.delete(`beforeExpiredTimeOut-${tabId}-${tab.windowId}`);
     await timeOutFnService.delete(`expiredTimeOut-${tabId}-${tab.windowId}`);
@@ -98,10 +95,6 @@ chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
   await tabRemainTimeService.delete({ tabId, windowId: removeInfo.windowId });
 
   const timeOutFnService = Container.get(TimeOutFnService);
-  console.log(
-    `beforeExpiredTimeOut-${tabId}-${removeInfo.windowId}`,
-    `expiredTimeOut-${tabId}-${removeInfo.windowId}`
-  );
   await timeOutFnService.delete(`beforeExpiredTimeOut-${tabId}-${removeInfo.windowId}`);
   await timeOutFnService.delete(`expiredTimeOut-${tabId}-${removeInfo.windowId}`);
 });
